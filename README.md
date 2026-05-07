@@ -13,7 +13,6 @@ Sending real-time stock trend alerts using AWS Lambda & Amazon SNS (Email/SMS).
 In this lab, you'll learn how to integrate various AWS services to create a streamlined CI/CD workflow, reducing manual intervention and enabling faster, reliable application deployment.
 
 
-
 # Steps to be performed 👩‍💻
 We'll go through the following steps in the next few lessons.
 
