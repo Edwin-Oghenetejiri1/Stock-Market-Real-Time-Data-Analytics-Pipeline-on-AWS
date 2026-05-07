@@ -35,8 +35,13 @@ We'll go through the following steps in the next few lessons.
  IAM Roles & Policies – Manages permissions securely.
 
  # Estimated Time & Cost ⚙️
-This project is estimated to take about 2-3 hours
-Cost: ~$1 to ~$2
+ This project is estimated to take about 2-3 hours
+ Cost: ~$1 to ~$2
+
+ ➡️ Diagram
+ This is the architectural diagram for the project:
+
+ !(screenshots/diagram.png)
 
 
 ➡️ Diagram
