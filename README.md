@@ -46,12 +46,13 @@ We'll go through the following steps in the next few lessons.
  ➡️ Final Result
 A fully functional near real-time stock analytics pipeline built using AWS services, featuring:
 
-Event-driven architecture with Amazon Kinesis for real-time data ingestion
-Lambda-based anomaly detection and stock trend evaluation
-Low-latency storage in DynamoDB for fast access to processed data
-Historical data archiving in Amazon S3 and querying via Athena
-Real-time alerts via Amazon SNS (Email/SMS) for significant stock movements
-Secure and cost-optimized design using IAM and serverless technologies
+1. Event-driven architecture with Amazon Kinesis for real-time data ingestion
+2. Lambda-based anomaly detection and stock trend evaluation
+3. Low-latency storage in DynamoDB for fast access to processed data
+4. Historical data archiving in Amazon S3 and querying via Athena
+5. Real-time alerts via Amazon SNS (Email/SMS) for significant stock movements
+6. Secure and cost-optimized design using IAM and serverless technologies
+
 This project implements a near real-time data analytics pipeline rather than a fully real-time system. The stock data is streamed, processed by AWS Lambda, and stored in DynamoDB with a 30-second delay. The primary goal of this guide is to provide a hands-on learning experience on creating a Data Analytics pipeline while keeping AWS costs low.
 
 
