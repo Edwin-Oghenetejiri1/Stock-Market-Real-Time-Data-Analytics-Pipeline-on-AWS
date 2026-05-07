@@ -1,174 +1,167 @@
-# Stock-Market-Real-Time-Data-Analytics-Pipeline-on-AWS
-This project builds a real-time stock market data analytics pipeline using AWS, leveraging event-driven architecture and serverless technologies. The architecture ingests, processes, stores, and analyzes stock market data in real-time while minimizing costs.
-
-# Key tasks include:
-
-Streaming real-time stock data from sources like yfinance using Amazon Kinesis Data Streams.
-Processing data and detecting anomalies with AWS Lambda.
-Storing processed stock data in Amazon DynamoDB for low-latency querying.
-Storing raw stock data in Amazon S3 for long-term analytics.
-Querying historical data using Amazon Athena.
-Sending real-time stock trend alerts using AWS Lambda & Amazon SNS (Email/SMS).
-
-In this lab, you'll learn how to integrate various AWS services to create a streamlined CI/CD workflow, reducing manual intervention and enabling faster, reliable application deployment.
 
 
-# Steps to be performed 👩‍💻
-We'll go through the following steps in the next few lessons.
+# 📈 Real-Time Stock Market Data Analytics Pipeline on AWS
 
-1. Setting Up Data Streaming with Amazon Kinesis
+> Event-driven architecture | Serverless technologies | Real-time data ingestion | AWS Kinesis • Lambda • DynamoDB • S3 • Athena • SNS
 
-2. Processing Data with AWS Lambda
+---
 
-3. Query Historical Stock Data using Amazon Athena
+## 📋 Overview
 
-4. Stock Trend Alerts using SNS
+This project builds a **real-time stock market data analytics pipeline** using AWS, leveraging event-driven architecture and serverless technologies. The architecture ingests, processes, stores, and analyzes stock market data in real-time while minimizing costs.
 
+### Key Features
+- 📡 Stream real-time stock data from **Yahoo Finance** using **Amazon Kinesis Data Streams**
+- ⚡ Process data and detect anomalies with **AWS Lambda**
+- 🗄️ Store processed stock data in **Amazon DynamoDB** for low-latency querying
+- 🪣 Store raw stock data in **Amazon S3** for long-term analytics
+- 🔍 Query historical data using **Amazon Athena**
+- 🔔 Send real-time stock trend alerts using **AWS Lambda & Amazon SNS** (Email/SMS)
 
- # Services Used 🛠
- Amazon Kinesis Data Streams – Ingests stock data in real-time.
- AWS Lambda – Processes stock data and detects stock trends.
- Amazon DynamoDB – Stores structured stock data for quick lookups.
- Amazon S3 – Stores raw stock data for historical analysis.
- Amazon Athena – Queries stock data directly from S3.
- Amazon SNS – Sends stock trend alerts via Email/SMS.
- IAM Roles & Policies – Manages permissions securely.
+---
 
- # Estimated Time & Cost ⚙️
- This project is estimated to take about 2-3 hours
- Cost: ~$1 to ~$2
+## 🏗️ Architecture
 
- ➡️ Diagram
- This is the architectural diagram for the project:
+![Architecture Diagram](screenshots/diagram.png)
 
- ![](screenshots/diagram.png)
+---
 
- ➡️ Final Result
-A fully functional near real-time stock analytics pipeline built using AWS services, featuring:
+## 🛠️ Services Used
 
-1. Event-driven architecture with Amazon Kinesis for real-time data ingestion
-2. Lambda-based anomaly detection and stock trend evaluation
-3. Low-latency storage in DynamoDB for fast access to processed data
-4. Historical data archiving in Amazon S3 and querying via Athena
-5. Real-time alerts via Amazon SNS (Email/SMS) for significant stock movements
-6. Secure and cost-optimized design using IAM and serverless technologies
+| Service | Purpose |
+|---|---|
+| **Amazon Kinesis Data Streams** | Ingests stock data in real-time |
+| **AWS Lambda** | Processes stock data and detects stock trends |
+| **Amazon DynamoDB** | Stores structured stock data for quick lookups |
+| **Amazon S3** | Stores raw stock data for historical analysis |
+| **Amazon Athena** | Queries stock data directly from S3 |
+| **Amazon SNS** | Sends stock trend alerts via Email/SMS |
+| **IAM Roles & Policies** | Manages permissions securely |
 
-This project implements a near real-time data analytics pipeline rather than a fully real-time system. The stock data is streamed, processed by AWS Lambda, and stored in DynamoDB with a 30-second delay. The primary goal of this guide is to provide a hands-on learning experience on creating a Data Analytics pipeline while keeping AWS costs low.
+---
 
-# Setting Up Data Streaming with Amazon Kinesis
+## ⚙️ Estimated Time & Cost
 
-# STEPS TO BE PERFORMED: 
+- ⏱️ **Time:** ~2-3 hours
+- 💰 **Cost:** ~$1 to ~$2
+
+---
+
+## 📌 Steps to be Performed
+
+1. [Setting Up Data Streaming with Amazon Kinesis](#1-setting-up-data-streaming-with-amazon-kinesis)
+2. [Processing Data with AWS Lambda](#2-processing-data-with-aws-lambda)
+3. [Query Historical Stock Data using Amazon Athena](#3-query-historical-stock-data-using-amazon-athena)
+4. [Stock Trend Alerts using SNS](#4-stock-trend-alerts-using-sns)
+
+---
+
+## 1. Setting Up Data Streaming with Amazon Kinesis
+
+### Steps
 1. Create a Kinesis Data Stream
-
 2. Set Up Your Local Python Environment
-
 3. Write the Python Script to Stream Stock Data
-
 4. Run the Script and Verify Data Streaming
 
-1. Create a Kinesis Data Stream
-In this step, we set up an Amazon Kinesis Data Stream to ingest real-time stock data from a stock market API like Yahoo Finance. 
-Amazon Kinesis Data Streams is a managed service that collects and processes real-time data streams. Kinesis enables us to capture and process large amounts of streaming data with minimal latency.
+---
 
-a. Log in to the AWS Management Console.
+### 1.1 Create a Kinesis Data Stream
 
-b. Search for Kinesis in the AWS search bar and open it:
+Amazon Kinesis Data Streams is a managed service that collects and processes real-time data streams with minimal latency.
 
-![](screenshots/kinesis.png)
+**a.** Log in to the AWS Management Console
 
-c. Click Create data stream.
+**b.** Search for **Kinesis** in the AWS search bar and open it:
 
-![](screenshots/datastream.png)
+![Kinesis Search](screenshots/kinesis.png)
 
-Configure the Stream
+**c.** Click **Create data stream**
 
-Stream name → `stock-market-stream`
+![Create Data Stream](screenshots/datastream.png)
 
-Data Stream Capacity Mode → Select On-demand (this is free-tier friendly).
+**d.** Configure the Stream:
+- **Stream name** → `stock-market-stream`
+- **Data Stream Capacity Mode** → Select **On-demand** (free-tier friendly)
+- **Retention Period** → Keep the default 24 hours
 
-![](screenshots/configurestream.png)
+![Configure Stream](screenshots/configurestream.png)
 
-Retention Period → Keep the default 24 hours.
+**e.** Click **Create data stream**
 
-Click Create data stream.
+Your Kinesis Data Stream is now ready! ✅
 
-Your Kinesis Data Stream is now ready!
+![Stream Ready](screenshots/readystream.png)
 
-![](screenshots/readystream.png)
+---
 
-2. Set Up Your Local Python Environment
-We need a local Python environment to fetch stock data from Yahoo Finance and send it to Kinesis. This step ensures that all required dependencies are installed and AWS authentication is configured.
+### 1.2 Set Up Your Local Python Environment
 
-1. Install Python (if not already installed)
+**1. Check Python version**
 
-Open a code editor like VSCode and ensure you have Python 3.8+ installed by running the below command in the terminal.
-
+```bash
 python --version
+```
 
-If not installed, download it from python.org.
+> If not installed, download it from [python.org](https://www.python.org/downloads/)
 
-2. Install Required Python Libraries
+**2. Install Required Python Libraries**
 
-In the code editor, open the terminal and run:
-
+```bash
 pip install boto3 yfinance
-![](screenshots/installboto.png)
+```
 
-`boto3`: AWS SDK for Python (to interact with AWS services).
-`yfinance`: Fetch latest stock prices from yfinance
+![Install Libraries](screenshots/installboto.png)
 
-3. Configure AWS Credentials (if not done already)
+- `boto3` — AWS SDK for Python (to interact with AWS services)
+- `yfinance` — Fetch latest stock prices from Yahoo Finance
 
-Since we're running the script locally, AWS needs permission to send data to Kinesis.
+**3. Configure AWS Credentials**
 
-Install AWS CLI (if not installed):
-
-Download from AWS CLI and install it.
-
-Configure AWS CLI (if not done previously):
-
-Run the following command and enter your AWS credentials.
-
+```bash
 aws configure
-![](screenshots/awsconfigure.png)
+```
 
-AWS Access Key ID → Enter your key
+![AWS Configure](screenshots/awsconfigure.png)
+
+Enter the following when prompted:
+
+AWS Access Key ID     → Enter your key
 AWS Secret Access Key → Enter your secret
-Default region name → Use the region where you created the Kinesis stream (e.g., `us-east-1`).
-Default output format → Leave empty (press Enter).
-Why do we need this? AWS CLI stores your credentials so boto3 can automatically authenticate your requests.
+Default region name   → us-east-1 (or your region)
+Default output format → press Enter
 
-Note: If AWS CLI is not configured, refer to Section 1.1 of Project 1
-3. Write the Python Script to Stream Stock Data
-Now that Kinesis is ready and our local environment is set up, we need a Python script to fetch stock data and continuously send it to Kinesis.
+> **Why?** AWS CLI stores your credentials so boto3 can automatically authenticate your requests.
 
-1. Create a New Python File
+---
 
-Open any code editor (VS Code, PyCharm, or Notepad++).
-Create a new file and save it as `stream_stock_data.py`.
+### 1.3 Write the Python Script to Stream Stock Data
 
-2. Copy and Paste the Script Below
+**1.** Create a new file called `stream_stock_data.py`
 
+**2.** Copy and paste the script below:
+
+```python
 import boto3
 import json
 import time
 import yfinance as yf
-​
+
 # AWS Kinesis Configuration
 kinesis_client = boto3.client('kinesis', region_name='us-east-1')
 STREAM_NAME = "<YOUR_DATA_STREAM_NAME>"  # Replace with your actual stream name
 STOCK_SYMBOL = "AAPL"
 DELAY_TIME = 30  # Time delay in seconds
-​
+
 # Function to fetch stock data
 def get_stock_data(symbol):
     try:
         stock = yf.Ticker(symbol)
         data = stock.history(period="2d")  # Fetch last 2 days to get previous close
-​
+
         if len(data) < 2:
             raise ValueError("Insufficient data to fetch previous close.")
-​
+
         stock_data = {
             "symbol": symbol,
             "open": round(data.iloc[-1]["Open"], 2),
@@ -185,7 +178,7 @@ def get_stock_data(symbol):
     except Exception as e:
         print(f"Error fetching stock data: {e}")
         return None
-​
+
 # Function to stream data into Kinesis
 def send_to_kinesis():
     while True:
@@ -195,61 +188,47 @@ def send_to_kinesis():
                 print("Skipping this iteration due to API error.")
                 time.sleep(DELAY_TIME)
                 continue
-​
+
             print(f"Sending: {stock_data}")
-​
+
             # Send to Kinesis
             response = kinesis_client.put_record(
                 StreamName=STREAM_NAME,
                 Data=json.dumps(stock_data),
                 PartitionKey=STOCK_SYMBOL
             )
-​
+
             # Debugging Response
             if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
                 print(f"Kinesis Response: {response}")
             else:
                 print(f"Error sending to Kinesis: {response}")
-​
+
             time.sleep(DELAY_TIME)  # Send data every 30 seconds
-​
+
         except Exception as e:
             print(f"Error: {e}")
             time.sleep(DELAY_TIME)
-​
+
 # Run the streaming function
 send_to_kinesis()
-​
-Remember to replace <YOUR_DATA_STREAM_NAME> with the actual name of your Kinesis Data Stream. 
+```
 
-What This Code Does
+> ⚠️ **Remember** to replace `<YOUR_DATA_STREAM_NAME>` with the actual name of your Kinesis Data Stream.
 
-1. Fetches Stock Data from Yahoo Finance
+**What This Code Does:**
 
-Retrieves the latest Open, High, Low, Close, Volume, and Previous Close for `AAPL`.
-Calculates Change and Change Percentage based on previous close.
+| Step | Description |
+|---|---|
+| **Fetches Stock Data** | Retrieves Open, High, Low, Close, Volume and Previous Close for AAPL |
+| **Formats Data** | Converts stock data into a structured JSON object with timestamp |
+| **Streams to Kinesis** | Sends JSON-encoded data to Kinesis every 30 seconds |
+| **Handles Errors** | Waits and retries if API fails instead of crashing |
+| **Logs Output** | Prints each record and Kinesis response to terminal |
 
-2. Formats the Data into a JSON Object
+**Sample record sent to Kinesis:**
 
-Converts stock data into a structured dictionary with a timestamp.
-
-3. Streams Data to AWS Kinesis
-
-Sends the JSON-encoded stock data to an AWS Kinesis Data Stream every 30 seconds.
-Uses AAPL as the `PartitionKey` for better ordering.
-
-4. Handles Errors & Retries
-
-If API fails or data is missing, the script waits and retries instead of crashing.
-
-5. Ensures Debugging & Logging
-
-Prints each sent record and Kinesis response to the terminal for monitoring.
-AAPL is the stock ticker symbol for Apple Inc. So basically here, we are fetching real time Apple Stock Data.
-Stored Data Format in Kinesis
-
-Each record in Kinesis will be a JSON object like this:
-
+```json
 {
   "symbol": "AAPL",
   "open": 211.25,
@@ -262,210 +241,181 @@ Each record in Kinesis will be a JSON object like this:
   "volume": 60107582,
   "timestamp": "2025-03-16T09:05:09Z"
 }
+```
 
+---
 
-4. Run the Script and Verify Data Streaming
-1. Run the Python Script
+### 1.4 Run the Script and Verify Data Streaming
 
-Open the terminal and run:
+**1.** Run the Python Script:
 
+```bash
 python stream_stock_data.py
+```
 
+**Expected Output:**
+Sending: {'symbol': 'AAPL', 'open': 211.25, 'high': 213.95, 'low': 209.58, 'price': 213.49,
+'previous_close': 209.68, 'change': 3.81, 'change_percent': 1.82, 'volume': 60060200,
+'timestamp': '2025-03-16T09:25:45Z'}
+Kinesis Response: {'ShardId': 'shardId-000000000002', 'SequenceNumber': '4966146277844746...'}
 
-Expected Output: Every 30 seconds, you should see something like:
+![Run Script](screenshots/runscript.png)
 
-Sending: {'symbol': 'AAPL', 'open': 211.25, 'high': 213.95, 'low': 209.58, 'price': 213.49, 'previous_close': 209.68, 'change': 3.81, 'change_percent': 1.82, 'volume': 60060200, 'timestamp': '2025-03-16T09:25:45Z'}
+**2.** Verify Data in Kinesis:
+- Open **AWS Console → Kinesis → stock-market-stream**
+- Click **Monitoring**
+- Check **Incoming Records** graph:
 
+![Incoming Records](screenshots/incomingrecords.png)
 
-Kinesis Response: {'ShardId': 'shardId-000000000002', 'SequenceNumber': '49661462778447467935367742360732390732264283159369089058', 'Response
+> You can also check the **Data Viewer** tab and select **Trim Horizon** as your starting position to view stored records.
 
-![](screenshots/runscript.png)
+![Trim Horizon](screenshots/trimhorizon.png)
 
-2. Verify Data in Kinesis
+> ⚠️ **IMPORTANT:** Stop your Python script using `CTRL+C` when you no longer need to stream data. If left running, it will send records to Kinesis every 30 seconds and may exceed Free Tier limits.
 
-Open AWS Console → Kinesis → stock-market-stream.
+✅ **Congratulations!** You have successfully streamed real-time stock data into Amazon Kinesis!
 
-Click Monitoring.
+---
 
-Look at Incoming Records:
+## 2. Processing Data with AWS Lambda
 
-![](screenshots/incomingrecords.png)
-
-If you are interested, you can also check the incoming shards from the Data Viewer tab. See the shard name in the terminal where your records are getting stored and select Trim Horizon as your Starting position. 
-
-![](screenshots/trimhorizon.png)
-
-REMEMBER TO STOP YOUR PYTHON EXECUTION USING A KEYBOARD INTERRUPT- `CTRL+C` IN THE TERMINAL WHEN YOU DON’T NEED TO STREAM THE DATA.
-
-If the script continues running, it will keep sending records to AWS Kinesis every 30 seconds indefinitely, which may lead to charges if the usage exceeds the Free Tier limits.
-Congratulations! You have successfully streamed real-time stock data into Amazon Kinesis!
-
-Processing Data with AWS Lambda
-STEPS TO BE PERFORMED: 
-Create a DynamoDB Table for storing Processed Stock Data.
-Create S3 for storing Raw Stock Data.
-Configure AWS Lambda in the AWS Console.
-Test the Integration.
+### Steps
 1. Create a DynamoDB Table for storing Processed Stock Data
-In this step, we will process incoming stock data using AWS Lambda and store structured records in Amazon DynamoDB for real-time querying.
-
-Why Do We Need a DynamoDB Table?
-
-A NoSQL database like DynamoDB is ideal for handling real-time stock data due to its:
-
-Fast read/write operations – Ensuring low-latency querying.
-Flexible schema – Enabling easy adjustments to stock data fields.
-Scalability – Handling high-volume stock transactions efficiently.
-
-Instead of storing raw stock prices, AWS Lambda will process data before saving it to DynamoDB.
-This approach allows us to:
-
-1. Structure the data for fast retrieval.
-
-2.Compute stock metrics like price changes and moving averages.
-
-3. Detect anomalies in stock movements.
-
-
-What Will Be Stored in DynamoDB?
-
-The Lambda function will process the following key stock data fields before storing them in DynamoDB:
-![](screenshots/datafield.png)
-
-1. Create the DynamoDB Table in AWS Console
-
-Open the AWS Console → Navigate to DynamoDB.
-
-![](screenshots/dynamodb.png)
-
-Click Create Table.
-![](screenshots/newtable.png)
-
-Table Name: `stock-market-data`.
-
-Partition Key: `symbol` (String).
-
-Sort Key: `timestamp` (String).
-
-![](screenshots/tabledetails.png)
-
-Keep the rest of the configurations as default.
-Click Create Table.
-2. Create S3 for storing Raw Stock Data
-In this step, we will store raw stock data in Amazon S3 before processing it with AWS Lambda.
-
-
-
-Why Use S3 for Raw Stock Data?
-
-Long-term storage → Store raw stock data for historical analysis.
-Batch processing → Useful for training machine learning models on stock trends.
-Flexible querying → Query historical data using Amazon Athena.
-
-1. Create an S3 Bucket
-
-Open AWS Console → Navigate to S3.
-Click Create bucket.
-Bucket Name: Enter a unique name, e.g., `stock-market-data-bucket-33454`.
-Region: Choose the same region as your Lambda function.
-Keep default settings (Block Public Access enabled).
-Click Create bucket.
+2. Create S3 Bucket for storing Raw Stock Data
 3. Configure AWS Lambda in the AWS Console
-Why Do We Need Lambda for Processing?
+4. Test the Integration
 
+---
 
+### 2.1 Create a DynamoDB Table
 
-Instead of simply storing raw stock prices, we use AWS Lambda to:
+**Why DynamoDB?**
 
-Structure the data → Store processed data in DynamoDB for fast retrieval.
-Compute stock metrics → Track price changes, percentage movements, and moving averages.
-Detect anomalies → Flag stocks with sudden spikes or drops.
-Raw data → Store the raw data in S3 bucket.
+| Feature | Benefit |
+|---|---|
+| Fast read/write | Low-latency querying |
+| Flexible schema | Easy adjustments to stock data fields |
+| Scalability | Handles high-volume stock transactions |
 
-1. Create a New IAM Role for Lambda
+**Stock data fields stored in DynamoDB:**
 
+![Data Fields](screenshots/datafield.png)
 
-Before creating the Lambda function, set up an IAM role with the necessary permissions:
+**1.** Open **AWS Console → DynamoDB**
 
-Open AWS Console → Navigate to IAM.
+![DynamoDB Console](screenshots/dynamodb.png)
 
-Click Roles → Create Role.
+**2.** Click **Create Table**
 
-Trusted Entity Type: Select AWS Service.
+![New Table](screenshots/newtable.png)
 
-Use Case: Choose Lambda → Click Next.
+**3.** Configure the table:
+- **Table Name:** `stock-market-data`
+- **Partition Key:** `symbol` (String)
+- **Sort Key:** `timestamp` (String)
 
-![](screenshots/trustedentity.png)
+![Table Details](screenshots/tabledetails.png)
 
-Attach Policies: Add the following managed policies:
-'AmazonKinesisFullAccess` (Read from Kinesis).
-`AmazonDynamoDBFullAccess` (Write to DynamoDB).
-`AWSLambdaBasicExecutionRole` (CloudWatch logging).`
-AmazonS3FullAccess` (Write to S3).
-Click Next → Name the role `Lambda_Kinesis_DynamoDB_Role` → Create Role.
+**4.** Keep default settings and click **Create Table**
 
-![](screenshots/lambdarole.png)
+---
 
-2. Create a New Lambda Function
+### 2.2 Create S3 Bucket for Raw Stock Data
 
-Open AWS Console → Navigate to Lambda.
+**Why S3?**
 
-![](screenshots/lambdafunction.png)
+- 📦 **Long-term storage** → Store raw stock data for historical analysis
+- 🤖 **Batch processing** → Useful for training ML models on stock trends
+- 🔍 **Flexible querying** → Query historical data using Amazon Athena
 
-Click Create Function → Select Author from Scratch.
-Function Name: ProcessStockData.
-Runtime: Python 3.13.
-Execution Role:  Select Use an existing role.
-Choose `Lambda_Kinesis_DynamoDB_Role` (created in the previous step).
+**1.** Open **AWS Console → S3 → Create bucket**
+- **Bucket Name:** `stock-market-data-bucket-33454` (use a unique name)
+- **Region:** Same region as your Lambda function
+- Keep **Block Public Access** enabled
+- Click **Create bucket**
 
-![](screenshots/lambdakinesisrole.png)
+---
 
-Click Create Function.
+### 2.3 Configure AWS Lambda
 
-3. Add Kinesis as a Trigger
+**Why Lambda for Processing?**
+Raw Kinesis Data
+↓
+AWS Lambda
+├── Structures data → DynamoDB (fast retrieval)
+├── Computes metrics → Price changes, moving averages
+├── Detects anomalies → Flags sudden spikes/drops
+└── Stores raw data → S3 bucket
 
-In the Function Overview tab → Click Add Trigger.
+**1. Create IAM Role for Lambda**
 
-![](screenshots/kinesistrigger.png)
+- Open **AWS Console → IAM → Roles → Create Role**
+- **Trusted Entity:** AWS Service → Lambda
 
-Select Kinesis as the source → Choose the stock-market-stream.
+![Trusted Entity](screenshots/trustedentity.png)
 
-![](screenshots/triggerconfiguration.png)
+- **Attach these policies:**
+  - `AmazonKinesisFullAccess` — Read from Kinesis
+  - `AmazonDynamoDBFullAccess` — Write to DynamoDB
+  - `AWSLambdaBasicExecutionRole` — CloudWatch logging
+  - `AmazonS3FullAccess` — Write to S3
+- **Role Name:** `Lambda_Kinesis_DynamoDB_Role`
 
-Add a Batch size of 2. 
+![Lambda Role](screenshots/lambdarole.png)
 
-![](screenshots/batchsize.png)
+**2. Create Lambda Function**
 
-Understand Batch size:
+- Open **AWS Console → Lambda**
 
-The batch size in Kinesis determines how many records must be collected before triggering the Lambda function.
+![Lambda Function](screenshots/lambdafunction.png)
 
-Since, we are sending records every 30 seconds into Kinesis, the Lambda will wait for 2 records(1 min) to be triggered.
+- Click **Create Function → Author from Scratch**
+  - **Function Name:** `ProcessStockData`
+  - **Runtime:** Python 3.13
+  - **Execution Role:** `Lambda_Kinesis_DynamoDB_Role`
 
-If you want to play around with the time for generating every record, make sure you take in account the Batch size too.
+![Lambda Kinesis Role](screenshots/lambdakinesisrole.png)
 
-For eg: If the record generation happens every 2 seconds, increase the batch size to 10-50
+- Click **Create Function**
 
-Click Add.
-4. Deploy the Lambda Code
+**3. Add Kinesis Trigger**
 
-Copy the Lambda function code from below:
+- In **Function Overview** → Click **Add Trigger**
+
+![Kinesis Trigger](screenshots/kinesistrigger.png)
+
+- Select **Kinesis** → Choose `stock-market-stream`
+
+![Trigger Configuration](screenshots/triggerconfiguration.png)
+
+- Set **Batch size:** `2`
+
+![Batch Size](screenshots/batchsize.png)
+
+> **Understanding Batch Size:** The Lambda function waits for 2 records (1 minute at 30-second intervals) before triggering. Adjust batch size based on your record generation frequency.
+
+**4. Deploy Lambda Code**
+
+Paste the following code into the Lambda editor and click **Deploy**:
+
+```python
 import json
 import boto3
 import base64
 from decimal import Decimal
-​
+
 # Initialize AWS Clients
 dynamodb = boto3.resource("dynamodb")
 s3 = boto3.client("s3")
-​
+
 # Resource Names
 DYNAMO_TABLE = "stock-market-data"
 S3_BUCKET = "stock-market-data-bucket-33454"
-​
+
 # Table reference
 table = dynamodb.Table(DYNAMO_TABLE)
-​
+
 def lambda_handler(event, context):
     for record in event['Records']:
         try:
@@ -473,7 +423,7 @@ def lambda_handler(event, context):
             raw_data = base64.b64decode(record["kinesis"]["data"]).decode("utf-8")
             payload = json.loads(raw_data)
             print(f"Processing record: {payload}")
-​
+
             # Store raw data in S3
             try:
                 s3_key = f"raw-data/{payload['symbol']}/{payload['timestamp'].replace(':', '-')}.json"
@@ -486,13 +436,13 @@ def lambda_handler(event, context):
                 print(f"Raw data saved to S3: {s3_key}")
             except Exception as s3_error:
                 print(f"Failed to save raw data to S3: {s3_error}")
-​
+
             # Compute stock metrics
             price_change = round(payload["price"] - payload["previous_close"], 2)
             price_change_percent = round((price_change / payload["previous_close"]) * 100, 2)
             is_anomaly = "Yes" if abs(price_change_percent) > 5 else "No"
             moving_average = (payload["open"] + payload["high"] + payload["low"] + payload["price"]) / 4
-​
+
             # Structured data for DynamoDB
             processed_data = {
                 "symbol": payload["symbol"],
@@ -508,74 +458,102 @@ def lambda_handler(event, context):
                 "moving_average": Decimal(str(moving_average)),
                 "anomaly": is_anomaly
             }
-​
+
             # Store in DynamoDB
             table.put_item(Item=processed_data)
             print(f"Stored in DynamoDB: {processed_data}")
-​
+
         except Exception as e:
             print(f"Error processing record: {e}")
-​
+
     return {"statusCode": 200, "body": "Processing Complete"}
+```
 
-    Paste it into the AWS Lambda Code Editor.
-    Click Deploy.
-4. Test the Integration
+---
 
-1. Verify Data in DynamoDB
+### 2.4 Test the Integration
 
-Open AWS Console → Navigate to DynamoDB.
-Click on stock-market-data → Explore Table Items.
-You should see processed stock data records appearing in real-time.
+> ⚠️ **Start your Python script before testing and stop it after storing 15-20 records in DynamoDB.**
 
-![](screenshots/dynamodbstock.png)
+**1. Verify Data in DynamoDB**
 
-2. Verify Data in S3
+- Open **AWS Console → DynamoDB → stock-market-data → Explore Table Items**
 
-Open AWS Console → Navigate to S3.
-You should see the raw stock data records appearing in real-time.
+![DynamoDB Stock Data](screenshots/dynamodbstock.png)
 
-![](screenshots/s3data.png)
+**2. Verify Data in S3**
 
-REMEMBER TO START THE PYTHON SCRIPT BEFORE TESTING THE INTEGRATION AND STOPPING IT AFTER STORING AROUND 15-20 RECORDS IN THE DYNAMO DB TABLE. 
+- Open **AWS Console → S3 → stock-market-data-bucket-33454**
 
-Now we have created a DynamoDB Table, developed an AWS Lambda function to process stock data from Kinesis, and validated the integration.
+![S3 Data](screenshots/s3data.png)
 
+✅ **You have successfully processed real-time stock data with Lambda and stored it in DynamoDB and S3!**
 
-In the next steps, we will query the historical data in S3 using Amazon Athena.
+---
 
-# Query Historical Stock Data using Amazon Athena
+## 3. Query Historical Stock Data using Amazon Athena
 
-# STEPS TO BE PERFORMED: 
-Create a Glue Catalog Table for Athena.
-Create an S3 Bucket to store Query Results.
-Query Data Using Athena.
-
-
+### Steps
 1. Create a Glue Catalog Table for Athena
-Now that raw stock data is stored in Amazon S3, we will use Amazon Athena to query and analyze it efficiently.
+2. Create an S3 Bucket to store Query Results
+3. Query Data Using Athena
 
+---
 
-Why Use Amazon Athena?
+### 3.1 Create a Glue Catalog Table for Athena
 
-Serverless SQL Queries: Query S3 data without setting up a database.
-Cost-Effective: Pay only for the data scanned.
-Scalable: Handles large datasets with ease.
-Amazon Athena requires a Glue Data Catalog to define the schema of S3 data.
+**Why Amazon Athena?**
 
-1. Open AWS Glue Console
+| Feature | Benefit |
+|---|---|
+| Serverless SQL | Query S3 data without setting up a database |
+| Cost-Effective | Pay only for data scanned |
+| Scalable | Handles large datasets with ease |
 
-Navigate to AWS Console → Open AWS Glue.
+> Amazon Athena requires a **Glue Data Catalog** to define the schema of S3 data.
 
-![](screenshots/awsglue.png)
+**1.** Open **AWS Console → AWS Glue**
 
-Click Data Catalog → Databases.
+![AWS Glue](screenshots/awsglue.png)
 
-![](screenshots/database.png)
+**2.** Click **Data Catalog → Databases**
 
-Click Create Database.
-Database Name: `stock_data_db`
-Click Create.
+![Database](screenshots/database.png)
 
-![](screenshots/database2.png)
+**3.** Click **Create Database**
+- **Database Name:** `stock_data_db`
+- Click **Create**
 
+![Database Created](screenshots/database2.png)
+
+---
+
+## ➡️ Final Result
+
+A fully functional near real-time stock analytics pipeline built using AWS services:
+yfinance (Python Script)
+↓
+Amazon Kinesis Data Streams
+↓
+AWS Lambda (Processing + Anomaly Detection)
+↓               ↓
+DynamoDB          Amazon S3
+(Fast queries)    (Raw storage)
+↓
+Amazon Athena
+(SQL queries)
+↓
+Amazon SNS
+(Email/SMS Alerts)
+
+| Feature | Implementation |
+|---|---|
+| **Event-driven ingestion** | Amazon Kinesis Data Streams |
+| **Anomaly detection** | AWS Lambda price change logic |
+| **Low-latency storage** | DynamoDB with symbol + timestamp key |
+| **Historical archiving** | S3 + Athena for SQL queries |
+| **Real-time alerts** | SNS Email/SMS notifications |
+| **Security** | IAM roles with least privilege |
+| **Cost optimization** | Serverless + On-demand pricing |
+
+> ⚠️ **Note:** This project implements a **near real-time** pipeline. Stock data is processed by Lambda and stored in DynamoDB with a ~30 second delay. The primary goal is hands-on learning while keeping AWS costs low (~$1-2).
