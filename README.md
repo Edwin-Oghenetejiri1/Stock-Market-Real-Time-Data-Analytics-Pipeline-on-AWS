@@ -55,6 +55,27 @@ A fully functional near real-time stock analytics pipeline built using AWS servi
 
 This project implements a near real-time data analytics pipeline rather than a fully real-time system. The stock data is streamed, processed by AWS Lambda, and stored in DynamoDB with a 30-second delay. The primary goal of this guide is to provide a hands-on learning experience on creating a Data Analytics pipeline while keeping AWS costs low.
 
+# Setting Up Data Streaming with Amazon Kinesis
+# STEPS TO BE PERFORMED: 
+1. Create a Kinesis Data Stream
+
+2. Set Up Your Local Python Environment
+
+3. Write the Python Script to Stream Stock Data
+
+4. Run the Script and Verify Data Streaming
+
+1. Create a Kinesis Data Stream
+In this step, we set up an Amazon Kinesis Data Stream to ingest real-time stock data from a stock market API like Yahoo Finance. 
+Amazon Kinesis Data Streams is a managed service that collects and processes real-time data streams. Kinesis enables us to capture and process large amounts of streaming data with minimal latency.
+
+a. Log in to the AWS Management Console.
+b. Search for Kinesis in the AWS search bar and open it:
+![](screenshots/kinesis.png)
+
+c. Click Create data stream.
+
+
 
 ➡️ Diagram
 This is the architectural diagram for the project:
