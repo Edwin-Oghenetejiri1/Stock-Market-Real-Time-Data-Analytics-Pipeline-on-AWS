@@ -70,7 +70,9 @@ In this step, we set up an Amazon Kinesis Data Stream to ingest real-time stock 
 Amazon Kinesis Data Streams is a managed service that collects and processes real-time data streams. Kinesis enables us to capture and process large amounts of streaming data with minimal latency.
 
 a. Log in to the AWS Management Console.
+
 b. Search for Kinesis in the AWS search bar and open it:
+
 ![](screenshots/kinesis.png)
 
 c. Click Create data stream.
