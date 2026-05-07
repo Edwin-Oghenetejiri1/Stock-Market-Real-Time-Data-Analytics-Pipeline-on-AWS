@@ -41,7 +41,7 @@ We'll go through the following steps in the next few lessons.
  ➡️ Diagram
  This is the architectural diagram for the project:
 
- !(screenshots/diagram.png)
+ ![](screenshots/diagram.png)
 
 
 ➡️ Diagram
