@@ -526,34 +526,374 @@ def lambda_handler(event, context):
 
 ![Database Created](screenshots/database2.png)
 
+### 3.2 Create a Glue Table for Stock Data
+
+- Open **AWS Glue Console → Click Tables → Add Table**
+
+![Glue Table](screenshots/gluetable.png)
+
+- **Table Name:** `stock_data_table`
+- **Database:** Select `stock_data_db`
+
+![Table Properties](screenshots/tableproperties.png)
+
+- **Table Type:** S3 Data
+- **S3 Path:** `s3://<YOUR-BUCKET-NAME>/raw-data/`
+
+![Data Store](screenshots/datastore1.png)
+
+- Select **JSON** as the data format → Click **Next**
+
 ---
 
-## ➡️ Final Result
+### 3.3 Define Table Schema
 
-A fully functional near real-time stock analytics pipeline built using AWS services:
-yfinance (Python Script)
-↓
-Amazon Kinesis Data Streams
-↓
-AWS Lambda (Processing + Anomaly Detection)
-↓               ↓
-DynamoDB          Amazon S3
-(Fast queries)    (Raw storage)
-↓
-Amazon Athena
-(SQL queries)
-↓
-Amazon SNS
-(Email/SMS Alerts)
+Add the following columns:
 
-| Feature | Implementation |
+![Column Names](screenshots/columnname.png)
+
+![Schema Entry](screenshots/schemaentry.png)
+
+![Schema New](screenshots/schemanew.png)
+
+Click **Next → Review → Create Table**
+
+---
+
+### 3.4 Create S3 Bucket for Athena Query Results
+
+1. Go to **AWS S3 Console → Create Bucket**
+2. **Name:** `athena-query-results-<unique-id>`
+
+![Athena Bucket](screenshots/athenabucket.png)
+
+3. Leave defaults → Click **Create Bucket**
+
+---
+
+### 3.5 Query Data Using Athena
+
+1. Open **AWS Console → Amazon Athena → Launch Query Editor**
+
+![Launch Athena](screenshots/launchathena.png)
+
+2. Select `stock_data_db` as the database
+
+![Data Catalog](screenshots/datacatalog.png)
+
+3. Set up query results location → Click **Edit Settings** → Select your S3 bucket → Click **Save**
+
+![Athena S3](screenshots/athenas3.png)
+
+4. Run a basic query:
+
+```sql
+SELECT * FROM stock_data_table LIMIT 10;
+```
+
+![Query Results](screenshots/query1.png)
+
+---
+
+### Advanced Athena Queries
+
+**1. Top 5 Stocks with Highest Price Change:**
+
+```sql
+SELECT symbol, price, previous_close,
+       (price - previous_close) AS price_change
+FROM stock_data_table
+ORDER BY price_change DESC
+LIMIT 5;
+```
+
+![Query Results](screenshots/queryresults.png)
+
+**2. Average Trading Volume Per Stock:**
+
+```sql
+SELECT symbol, AVG(volume) AS avg_volume
+FROM stock_data_table
+GROUP BY symbol;
+```
+
+![Query 3](screenshots/query3.png)
+
+**3. Find Anomalous Stocks (Price Change > 5%):**
+
+```sql
+SELECT symbol, price, previous_close,
+       ROUND(((price - previous_close) / previous_close) * 100, 2) AS change_percent
+FROM stock_data_table
+WHERE ABS(((price - previous_close) / previous_close) * 100) > 5;
+```
+
+![Query 4](screenshots/query4.png)
+
+> No anomalous stocks detected from the current data source.
+
+✅ **You can now query historical stock data using Amazon Athena!**
+
+---
+
+## 4. Stock Trend Alerts using SNS
+
+### Steps
+1. Enable DynamoDB Streams
+2. Create an SNS Topic
+3. Create an IAM Role for Lambda
+4. Create Lambda for Trend Analysis
+
+---
+
+### 4.1 Enable DynamoDB Streams
+
+**Why DynamoDB Streams?**
+
+DynamoDB Streams capture real-time data changes
+↓
+Lambda reads the stream
+↓
+Analyzes stock trends
+↓
+SNS sends Email/SMS alerts
+
+1. Open **AWS DynamoDB Console → Select `stock-market-data` table**
+2. Click **Exports and Streams → Enable DynamoDB Streams**
+
+![Stock Market Data](screenshots/stockmarketdata.png)
+
+3. Select **New image** (captures the latest version of each record)
+
+![DynamoDB Stream](screenshots/dynamodbstream.png)
+
+4. Click **Turn on stream**
+
+---
+
+### 4.2 Create an SNS Topic
+
+1. Go to **AWS SNS Console → Create Topic**
+2. **Type:** Standard
+3. **Topic Name:** `Stock_Trend_Alerts`
+
+![Create Topic](screenshots/createtopic.png)
+
+4. Leave defaults → Click **Create Topic**
+
+5. **Add Subscribers → Click Create Subscription**
+
+![Create Subscription](screenshots/createsubscription.png)
+
+- **Protocol:** Email or SMS
+- **Endpoint:** Enter your email address or phone number
+
+![Email/Phone](screenshots/emailphonenumber.png)
+
+- Click **Create Subscription**
+- Confirm via the email or SMS you receive
+
+![Confirm Subscription](screenshots/confirmsub.png)
+
+---
+
+### 4.3 Create IAM Role for Lambda
+
+1. Go to **AWS IAM Console → Roles → Create Role**
+2. **Trusted Entity:** AWS Service → Lambda
+
+![Trusted Entity](screenshots/trustedentity1.png)
+
+3. **Attach these policies:**
+   - `AmazonDynamoDBFullAccess` — Read stock data
+   - `AmazonSNSFullAccess` — Publish alerts to SNS
+   - `AWSLambdaBasicExecutionRole` — CloudWatch logs
+
+4. **Role Name:** `StockTrendLambdaRole` → Click **Create Role**
+
+![Stock Trend Role](screenshots/stocktrendrole.png)
+
+---
+
+### 4.4 Create Lambda for Trend Analysis
+
+1. Go to **AWS Lambda Console → Create Function**
+2. **Author from Scratch**
+   - **Function Name:** `StockTrendAnalysis`
+   - **Runtime:** Python 3.13
+
+![Stock Trend Analysis](screenshots/stocktrendanalysis.png)
+
+3. **Permissions:** Use existing role → Select `StockTrendLambdaRole`
+
+![Stock Lambda Role](screenshots/stocklambdarole.png)
+
+4. Click **Create Function**
+
+5. Click **Add Trigger**
+
+![Add Trigger](screenshots/stockk.png)
+
+6. Select **DynamoDB** → Choose `stock-market-data` → **Batch size:** `2`
+
+![Trigger Configuration](screenshots/triggerconfiguration2.png)
+
+7. Paste the Lambda code below and click **Deploy:**
+
+```python
+import boto3
+import json
+import decimal
+from datetime import datetime, timedelta
+
+# AWS Clients
+dynamodb = boto3.resource("dynamodb")
+sns = boto3.client("sns")
+
+# DynamoDB Table Name and SNS ARN
+TABLE_NAME = "<YOUR-DYNAMODB-TABLE-NAME>"
+SNS_TOPIC_ARN = "<YOUR-SNS-TOPIC-ARN>"
+
+def get_recent_stock_data(symbol, minutes=5):
+    """Fetch stock data for the last 'minutes' from DynamoDB"""
+    table = dynamodb.Table(TABLE_NAME)
+    now = datetime.utcnow()
+    past_time = now - timedelta(minutes=minutes)
+
+    try:
+        response = table.query(
+            KeyConditionExpression="symbol = :symbol AND #ts >= :time",
+            ExpressionAttributeNames={"#ts": "timestamp"},
+            ExpressionAttributeValues={
+                ":symbol": symbol,
+                ":time": past_time.strftime("%Y-%m-%d %H:%M:%S"),
+            },
+            ScanIndexForward=True
+        )
+        return sorted(response.get("Items", []), key=lambda x: x["timestamp"])
+
+    except Exception as e:
+        print(f"Error fetching stock data: {e}")
+        return []
+
+def calculate_moving_average(data, period):
+    """Calculate moving average for given period"""
+    if len(data) < period:
+        return decimal.Decimal("0")
+    return sum(decimal.Decimal(d["price"]) for d in data[-period:]) / period
+
+def lambda_handler(event, context):
+    """Main Lambda function"""
+    symbols = ["AAPL"]
+
+    for symbol in symbols:
+        stock_data = get_recent_stock_data(symbol)
+
+        if len(stock_data) < 20:
+            continue
+
+        # Compute Moving Averages
+        sma_5 = calculate_moving_average(stock_data, 5)
+        sma_20 = calculate_moving_average(stock_data, 20)
+        sma_5_prev = calculate_moving_average(stock_data[:-1], 5)
+        sma_20_prev = calculate_moving_average(stock_data[:-1], 20)
+
+        if None not in (sma_5, sma_20, sma_5_prev, sma_20_prev):
+            message = None
+
+            # Detect Trend Change
+            if sma_5_prev < sma_20_prev and sma_5 > sma_20:
+                message = f"{symbol} is in an **Uptrend**! Consider a buy opportunity."
+            elif sma_5_prev > sma_20_prev and sma_5 < sma_20:
+                message = f"{symbol} is in a **Downtrend**! Consider selling."
+
+            # Publish SNS Alert
+            if message:
+                try:
+                    sns.publish(
+                        TopicArn=SNS_TOPIC_ARN,
+                        Message=message,
+                        Subject=f"Stock Alert: {symbol}"
+                    )
+                except Exception as e:
+                    print(f"Failed to publish SNS message: {e}")
+
+    return {"statusCode": 200, "body": json.dumps("Trend analysis complete")}
+```
+
+> ⚠️ Replace `<YOUR-DYNAMODB-TABLE-NAME>` and `<YOUR-SNS-TOPIC-ARN>` with your actual values.
+>
+> **How to find your SNS Topic ARN:** AWS Console → SNS → Topics → Select your topic → Copy ARN from Details section.
+
+![Stock Trend Alerts](screenshots/stocktrendalerts.png)
+
+---
+
+### How Trend Detection Works
+
+Stock Data (last 5 minutes)
+↓
+SMA-5  = Average of last 5 price records  (short-term)
+SMA-20 = Average of last 20 price records (long-term)
+↓
+SMA-5 crosses ABOVE SMA-20 → 📈 UPTREND  → BUY alert sent via SNS
+SMA-5 crosses BELOW SMA-20 → 📉 DOWNTREND → SELL alert sent via SNS
+
+**Lambda Code Breakdown:**
+
+| Step | Function | Description |
+|---|---|---|
+| 1 | `get_recent_stock_data()` | Queries DynamoDB for last 5 minutes of stock prices |
+| 2 | `calculate_moving_average()` | Computes SMA-5 and SMA-20 averages |
+| 3 | Trend detection | Compares current vs previous SMAs to detect crossovers |
+| 4 | `sns.publish()` | Sends BUY/SELL alert to subscribed emails/phones |
+
+✅ **Congratulations! You have successfully completed the Stock Market Real-Time Data Analytics Pipeline on AWS!**
+
+---
+
+## 🧹 Clean Up
+
+> ⚠️ **Delete all resources to avoid ongoing AWS charges**
+
+| Resource | Steps |
 |---|---|
-| **Event-driven ingestion** | Amazon Kinesis Data Streams |
-| **Anomaly detection** | AWS Lambda price change logic |
-| **Low-latency storage** | DynamoDB with symbol + timestamp key |
-| **Historical archiving** | S3 + Athena for SQL queries |
-| **Real-time alerts** | SNS Email/SMS notifications |
-| **Security** | IAM roles with least privilege |
-| **Cost optimization** | Serverless + On-demand pricing |
+| **Kinesis Data Stream** | Kinesis Console → Select stream → Delete |
+| **Lambda Functions** | Lambda Console → Select `ProcessStockData` and `StockTrendAnalysis` → Delete |
+| **DynamoDB Table** | DynamoDB Console → Select `stock-market-data` → Delete Table |
+| **SNS Topic** | SNS Console → Select `Stock_Trend_Alerts` → Delete |
+| **S3 Buckets** | S3 Console → Empty bucket first → Delete bucket |
+| **Athena Tables** | Athena Console → Delete tables and saved queries |
+| **IAM Roles** | IAM Console → Delete project-specific roles and policies |
 
-> ⚠️ **Note:** This project implements a **near real-time** pipeline. Stock data is processed by Lambda and stored in DynamoDB with a ~30 second delay. The primary goal is hands-on learning while keeping AWS costs low (~$1-2).
+---
+
+## 🏁 Conclusion
+
+This project demonstrates how to build a **near real-time stock market data analytics pipeline** using AWS fully managed serverless services.
+
+**Key outcomes:**
+
+| Outcome | Implementation |
+|---|---|
+| Real-time data ingestion | Amazon Kinesis Data Streams |
+| Event-driven processing | AWS Lambda triggered by Kinesis |
+| Anomaly detection | Price change percentage threshold logic |
+| Trend analysis | Simple Moving Average crossover strategy |
+| Low-latency storage | DynamoDB for fast structured queries |
+| Historical archiving | S3 + Athena for serverless SQL analytics |
+| Real-time alerting | SNS Email/SMS notifications |
+| Security | IAM least privilege roles per service |
+| Cost optimization | Serverless + On-demand pricing (~$1-2) |
+
+> **Note:** This pipeline processes stock data with a ~30 second delay making it **near real-time** rather than fully real-time. For a true real-time system, consider using **Amazon OpenSearch Service**. The primary goal here is hands-on learning while keeping costs low.
+
+---
+
+## 🔗 Related Resources
+
+- [Amazon Kinesis Documentation](https://docs.aws.amazon.com/kinesis/)
+- [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
+- [Amazon DynamoDB Documentation](https://docs.aws.amazon.com/dynamodb/)
+- [Amazon Athena Documentation](https://docs.aws.amazon.com/athena/)
+- [Amazon SNS Documentation](https://docs.aws.amazon.com/sns/)
